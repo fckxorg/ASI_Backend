@@ -23,17 +23,17 @@ class Profile(models.Model):
 
 
 class Pitch(models.Model):
-    user = models.ForeignKey(User)
-    tags = models.ManyToManyField(Tags)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    tags = models.ManyToManyField(Tag)
     name = models.CharField(max_length=200)
     preview = models.FileField(upload_to="static/pitches/previews/")
     description = models.CharField(max_length=1500)
     video = models.FileField(upload_to="static/pitches/videos/")
     presentation = models.FileField(upload_to="static/pitches/presentations/")
-    necessary_investitions= models.IntegerField() # Estimated amount of money needed for project launch
-    investors_interested = models.ManyToManyField(User)
-    investors_signed = models.ManyToManyField(User)
-    smartid = models.CharField(max_length="400")
+    necessary_investitions = models.IntegerField() # Estimated amount of money needed for project launch
+    investors_interested = models.ManyToManyField(User, related_name="investors_interested")
+    investors_signed = models.ManyToManyField(User, related_name="investors_signed")
+    smartid = models.CharField(max_length=400)
 
     def __str__(self):
         return self.name
