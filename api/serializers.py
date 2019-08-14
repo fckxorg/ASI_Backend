@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 import base64
 
+
 class UserSerializer:
     @staticmethod
     def serialize(user):
