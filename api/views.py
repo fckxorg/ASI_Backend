@@ -72,3 +72,16 @@ def get_new_pitches(request):
             data["pitches"].append(pitch_data)
         return JsonResponse(data)
     return JsonResponse({"status": "Error", "message": "You have to be investor to get recommended pitches"})
+
+
+@login_required
+def get_users_pitches(request):
+    pitches = Pitch.objects.all().filter(user=request.user)
+    data = {"pitches":[]}
+    for pitch in pitches:
+        pitch_data = {"name": pitch.name, "description": pitch.description,
+                      "preview": str(base64.b64encode(pitch.preview.read()))[2:-1], "tags": []}
+        for tag in pitch.tags.all():
+            pitch_data["tags"].append(tag.name)
+        data["pitches"].append(pitch_data)
+    return JsonResponse(data)

@@ -2,7 +2,7 @@ from django.test import TestCase, RequestFactory, Client
 from .models import Profile, Tag, Pitch
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
-from .views import get_user, get_user_by_id, add_tag, get_tags, get_new_pitches
+from .views import get_user, get_user_by_id, add_tag, get_tags, get_new_pitches, get_users_pitches
 import json
 
 
@@ -54,6 +54,21 @@ class UserTestCase(TestCase):
         self.profile = Profile(user=self.user, birth_date="2019-06-09", is_investor=True)
         self.profile.save()
 
+        tag = Tag(name="art")
+        tag.save()
+
+        pitch = Pitch(user=self.user, name="test", necessary_investitions=100,
+                      preview=SimpleUploadedFile("picture0.png", bytes("testdata", encoding='utf-8')))
+        pitch.save()
+        pitch.tags.add(tag)
+        pitch.save()
+
+        pitch = Pitch(user=self.user, name="sas", necessary_investitions=100,
+                      preview=SimpleUploadedFile("picture1.png", bytes("testdata", encoding='utf-8')))
+        pitch.save()
+        pitch.tags.add(tag)
+        pitch.save()
+
     def test_getting_user(self):
         request = self.factory.get("/user/get")
         request.user = self.user
@@ -72,6 +87,12 @@ class UserTestCase(TestCase):
         data = json.loads(str(response.content)[2:-1])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data["status"], "Ok")
+
+    def test_getting_users_pitches(self):
+        request = self.factory.get("/user/pitch/")
+        request.user = self.user
+        response = get_users_pitches(request)
+        self.assertEqual(response.status_code, 200)
 
 
 class PitchTestCase(TestCase):
