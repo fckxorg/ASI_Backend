@@ -1,7 +1,8 @@
 from django.test import TestCase, RequestFactory, Client
-from .models import Profile, Tag
+from .models import Profile, Tag, Pitch
 from django.contrib.auth.models import User
-from .views import get_user, get_user_by_id, add_tag, get_tags, auth_user
+from django.core.files.uploadedfile import SimpleUploadedFile
+from .views import get_user, get_user_by_id, add_tag, get_tags, get_new_pitches
 import json
 
 
@@ -71,3 +72,60 @@ class UserTestCase(TestCase):
         data = json.loads(str(response.content)[2:-1])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data["status"], "Ok")
+
+
+class PitchTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        tag = Tag(name="art")
+        tag.save()
+        tag2 = Tag(name="tech")
+        tag2.save()
+        self.user = User.objects.create(username="Test", email="test@test.com")
+        self.user.set_password("/dev/null")
+        self.user.save()
+        profile = Profile(user=self.user, birth_date="2019-06-09", is_investor=False)
+        profile.save()
+
+        self.investor = User.objects.create(username="Investor", email="investor@test.com")
+        self.investor.set_password("/dev/null")
+        self.investor.save()
+        investor_profile = Profile(user=self.investor, birth_date="2019-06-09", is_investor=True)
+        investor_profile.save()
+        investor_profile.tags.add(tag)
+        investor_profile.tags.add(tag2)
+        investor_profile.save()
+
+        pitch = Pitch(user=self.user, name="test", necessary_investitions=100, preview=SimpleUploadedFile("picture0.png", bytes("testdata", encoding='utf-8')))
+        pitch.save()
+        pitch.tags.add(tag)
+        pitch.save()
+
+        pitch = Pitch(user=self.user, name="sas", necessary_investitions=100,
+                      preview=SimpleUploadedFile("picture1.png", bytes("testdata", encoding='utf-8')))
+        pitch.save()
+        pitch.tags.add(tag)
+        pitch.tags.add(tag2)
+        pitch.save()
+
+        pitch = Pitch(user=self.user, name="kek", necessary_investitions=100,
+                      preview=SimpleUploadedFile("picture2.png", bytes("testdata", encoding='utf-8')))
+        pitch.save()
+        pitch.tags.add(tag2)
+        pitch.save()
+
+    def test_getting_new_pitches_as_investor(self):
+        request = self.factory.get("/pitch/get/new/")
+        request.user = self.investor
+        response = get_new_pitches(request)
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(str(response.content)[2:-1])
+        self.assertEqual(data["pitches"][0]["name"], "test")
+
+    def test_getting_new_pitches_as_user(self):
+        request = self.factory.get("/pitch/get/new/")
+        request.user = self.user
+        response = get_new_pitches(request)
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(str(response.content)[2:-1])
+        self.assertEqual(data["status"], "Error")
