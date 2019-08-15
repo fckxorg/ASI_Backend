@@ -2,7 +2,7 @@ from django.test import TestCase, RequestFactory, Client
 from .models import Profile, Tag, Pitch
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
-from .views import get_user, get_user_by_id, add_tag, get_tags, get_new_pitches, get_users_pitches
+from .views import get_user, get_user_by_id, add_tag, get_tags, get_new_pitches, get_users_pitches, get_users_pitches_by_id
 import json
 
 
@@ -92,6 +92,12 @@ class UserTestCase(TestCase):
         request = self.factory.get("/user/pitch/")
         request.user = self.user
         response = get_users_pitches(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_getting_users_pitches_by_id(self):
+        request = self.factory.get("/user/pitch/"+str(self.user.id))
+        request.user = self.user
+        response = get_users_pitches_by_id(request, self.user.id)
         self.assertEqual(response.status_code, 200)
 
 

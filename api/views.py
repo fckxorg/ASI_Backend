@@ -77,7 +77,21 @@ def get_new_pitches(request):
 @login_required
 def get_users_pitches(request):
     pitches = Pitch.objects.all().filter(user=request.user)
-    data = {"pitches":[]}
+    data = {"pitches": []}
+    for pitch in pitches:
+        pitch_data = {"name": pitch.name, "description": pitch.description,
+                      "preview": str(base64.b64encode(pitch.preview.read()))[2:-1], "tags": []}
+        for tag in pitch.tags.all():
+            pitch_data["tags"].append(tag.name)
+        data["pitches"].append(pitch_data)
+    return JsonResponse(data)
+
+
+@login_required
+def get_users_pitches_by_id(request, id):
+    user = User.objects.get(id=id)
+    pitches = Pitch.objects.all().filter(user=user)
+    data = {"pitches": []}
     for pitch in pitches:
         pitch_data = {"name": pitch.name, "description": pitch.description,
                       "preview": str(base64.b64encode(pitch.preview.read()))[2:-1], "tags": []}

@@ -8,5 +8,6 @@ urlpatterns = [
     path("tag/get/", views.get_tags, name="get_tags"),
     path("user/login/", views.auth_user, name="auth_user"),
     path("pitch/get/new/", views.get_new_pitches, name="get_new_pitches"),
-    path("user/pitch/", views.get_users_pitches, name="get_users_pitches")
+    path("user/pitch/", views.get_users_pitches, name="get_users_pitches"),
+    path("user/pitch/<int:id>", views.get_users_pitches_by_id, name="get_users_pitches_by_id")
 ]
