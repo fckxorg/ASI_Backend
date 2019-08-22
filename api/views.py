@@ -8,6 +8,8 @@ from .serializers import UserSerializer
 import base64
 import json
 
+from django.core.serializers import serialize
+
 
 @login_required
 def get_user(request):
@@ -63,13 +65,10 @@ def get_new_pitches(request):
             for element in list(tag.pitch_set.all()):
                 pitch_objects.append(element)
         pitch_objects = list(set(pitch_objects))
+        pitch_objects = json.loads(serialize("json", pitch_objects, fields = ["name", "description", "preview", "tags"]))
         data = {"pitches": []}
         for pitch_object in pitch_objects:
-            pitch_data = {"name": pitch_object.name, "description": pitch_object.description,
-                          "preview": str(base64.b64encode(pitch_object.preview.read()))[2:-1], "tags": []}
-            for tag in pitch_object.tags.all():
-                pitch_data["tags"].append(tag.name)
-            data["pitches"].append(pitch_data)
+            data["pitches"].append({**pitch_object["fields"], "id": pitch_object["pk"]})
         return JsonResponse(data)
     return JsonResponse({"status": "Error", "message": "You have to be investor to get recommended pitches"})
 
@@ -78,12 +77,9 @@ def get_new_pitches(request):
 def get_users_pitches(request):
     pitches = Pitch.objects.all().filter(user=request.user)
     data = {"pitches": []}
-    for pitch in pitches:
-        pitch_data = {"name": pitch.name, "description": pitch.description,
-                      "preview": str(base64.b64encode(pitch.preview.read()))[2:-1], "tags": []}
-        for tag in pitch.tags.all():
-            pitch_data["tags"].append(tag.name)
-        data["pitches"].append(pitch_data)
+    pitch_objects = json.loads(serialize("json", pitches, fields=["name", "description", "preview", "tags"]))
+    for pitch_object in pitch_objects:
+        data["pitches"].append({**pitch_object["fields"], "id": pitch_object["pk"]})
     return JsonResponse(data)
 
 
@@ -92,10 +88,14 @@ def get_users_pitches_by_id(request, id):
     user = User.objects.get(id=id)
     pitches = Pitch.objects.all().filter(user=user)
     data = {"pitches": []}
-    for pitch in pitches:
-        pitch_data = {"name": pitch.name, "description": pitch.description,
-                      "preview": str(base64.b64encode(pitch.preview.read()))[2:-1], "tags": []}
-        for tag in pitch.tags.all():
-            pitch_data["tags"].append(tag.name)
-        data["pitches"].append(pitch_data)
+    pitch_objects = json.loads(serialize("json", pitches, fields=["name", "description", "preview", "tags"]))
+    for pitch_object in pitch_objects:
+        data["pitches"].append({**pitch_object["fields"], "id": pitch_object["pk"]})
     return JsonResponse(data)
+
+
+@login_required
+def get_pitch_by_id(request, id):
+    pitch = Pitch.objects.get(id=id)
+    data = json.loads(serialize('json', [pitch]))[0]
+    return JsonResponse({**data["fields"], "id": data["pk"]})

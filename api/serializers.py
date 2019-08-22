@@ -10,7 +10,7 @@ class UserSerializer:
         additional_data = vars(user.profile)
         try:
             # string slice required to fix python byte-object to string cast
-            additional_data["avatar"] = str(base64.b64encode(user.profile.avatar.read()))[2:-1]
+            additional_data["avatar"] = user.profile.avatar.url
         except FileNotFoundError:
             additional_data["avatar"] = "None"
         except ValueError:

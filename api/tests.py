@@ -2,7 +2,7 @@ from django.test import TestCase, RequestFactory, Client
 from .models import Profile, Tag, Pitch
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
-from .views import get_user, get_user_by_id, add_tag, get_tags, get_new_pitches, get_users_pitches, get_users_pitches_by_id
+from .views import get_user, get_user_by_id, add_tag, get_tags, get_new_pitches, get_users_pitches, get_users_pitches_by_id, get_pitch_by_id
 import json
 
 
@@ -51,7 +51,7 @@ class UserTestCase(TestCase):
         self.user = User.objects.create(username="Test", email="test@test.com")
         self.user.set_password("/dev/null")
         self.user.save()
-        self.profile = Profile(user=self.user, birth_date="2019-06-09", is_investor=True)
+        self.profile = Profile(user=self.user, birth_date="2019-06-09", is_investor=True, avatar = SimpleUploadedFile("picture0.png", bytes("testdata", encoding='utf-8')))
         self.profile.save()
 
         tag = Tag(name="art")
@@ -126,6 +126,8 @@ class PitchTestCase(TestCase):
         pitch = Pitch(user=self.user, name="test", necessary_investitions=100, preview=SimpleUploadedFile("picture0.png", bytes("testdata", encoding='utf-8')))
         pitch.save()
         pitch.tags.add(tag)
+        pitch.investors_interested.add(self.investor)
+        pitch.investors_signed.add(self.investor)
         pitch.save()
 
         pitch = Pitch(user=self.user, name="sas", necessary_investitions=100,
@@ -156,3 +158,10 @@ class PitchTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         data = json.loads(str(response.content)[2:-1])
         self.assertEqual(data["status"], "Error")
+
+    def test_getting_pitch_by_id(self):
+        request = self.factory.get("/pitch/get/1/")
+        request.user = self.user
+        response = get_pitch_by_id(request, 1)
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(str(response.content)[2:-1])
