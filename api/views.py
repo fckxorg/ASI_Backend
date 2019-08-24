@@ -11,18 +11,16 @@ import json
 from django.core.serializers import serialize
 
 
-@login_required
 def get_user(request):
     return JsonResponse(UserSerializer.serialize(request.user))
 
 
-@login_required
 def get_user_by_id(request, id):
     user = User.objects.get(id=id)
     return JsonResponse(UserSerializer.serialize(user))
 
 
-@login_required
+@csrf_exempt
 def add_tag(request):
     if request.user.is_staff:
         data = json.loads(request.body.decode("utf-8"))
@@ -32,7 +30,6 @@ def add_tag(request):
     return JsonResponse({"status": "Error", "message": "You have to be staff to add tags"})
 
 
-@login_required
 def get_tags(request):
     query = Tag.objects.all()
     data = {"tags": []}
@@ -55,23 +52,24 @@ def auth_user(request):
     return response
 
 
-@login_required
+@csrf_exempt
 def get_new_pitches(request):
-    if request.user.profile.is_investor:
-        pitch_objects = []
-        for tag in request.user.profile.tags.all():
-            for element in list(tag.pitch_set.all()):
-                pitch_objects.append(element)
-        pitch_objects = list(set(pitch_objects))
-        pitch_objects = json.loads(serialize("json", pitch_objects, fields = ["name", "description", "preview", "tags"]))
-        data = {"pitches": []}
-        for pitch_object in pitch_objects:
-            data["pitches"].append({**pitch_object["fields"], "id": pitch_object["pk"]})
-        return JsonResponse(data)
-    return JsonResponse({"status": "Error", "message": "You have to be investor to get recommended pitches"})
+    pitch_objects = []
+    user = User.objects.get(email="max.kokryashkin@gmail.com")
+    for tag in user.profile.tags.all():
+        for element in list(tag.pitch_set.all()):
+            pitch_objects.append(element)
+    pitch_objects = list(set(pitch_objects))
+    pitch_objects = json.loads(serialize("json", pitch_objects, fields = ["name", "description", "preview", "tags"]))
+    data = []
+    for pitch_object in pitch_objects:
+        data.append({**pitch_object["fields"], "id": pitch_object["pk"]})
+    response = JsonResponse(data, safe=False)
+    response["Access-Control-Allow-Origin"] = "*"
+    response["Access-Control-Allow-Methods"] = "GET"
+    return response
 
 
-@login_required
 def get_users_pitches(request):
     pitches = Pitch.objects.all().filter(user=request.user)
     data = {"pitches": []}
@@ -81,7 +79,6 @@ def get_users_pitches(request):
     return JsonResponse(data)
 
 
-@login_required
 def get_users_pitches_by_id(request, id):
     user = User.objects.get(id=id)
     pitches = Pitch.objects.all().filter(user=user)
@@ -92,11 +89,13 @@ def get_users_pitches_by_id(request, id):
     return JsonResponse(data)
 
 
-@login_required
 def get_pitch_by_id(request, id):
     pitch = Pitch.objects.get(id=id)
     data = json.loads(serialize('json', [pitch]))[0]
-    return JsonResponse({**data["fields"], "id": data["pk"]})
+    response = JsonResponse({**data["fields"], "id": data["pk"]}, safe=False)
+    response["Access-Control-Allow-Origin"] = "*"
+    response["Access-Control-Allow-Methods"] = "GET"
+    return response
 
 
 @csrf_exempt
@@ -108,8 +107,7 @@ def register_user(request):
     profile.save()
     return JsonResponse({"status": "Ok"})
 
-
-@login_required
+@csrf_exempt
 def edit_user(request):
     data = json.loads(request.body.decode("utf-8"))
     user = request.user
