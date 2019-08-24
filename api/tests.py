@@ -51,7 +51,8 @@ class UserTestCase(TestCase):
         self.user = User.objects.create(username="Test", email="test@test.com")
         self.user.set_password("/dev/null")
         self.user.save()
-        self.profile = Profile(user=self.user, birth_date="2019-06-09", is_investor=True, avatar = SimpleUploadedFile("picture0.png", bytes("testdata", encoding='utf-8')))
+        self.profile = Profile(user=self.user, birth_date="2019-06-09", is_investor=True,
+                               avatar=SimpleUploadedFile("picture0.png", bytes("testdata", encoding='utf-8')))
         self.profile.save()
 
         tag = Tag(name="art")
@@ -76,7 +77,7 @@ class UserTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_getting_user_by_id(self):
-        request = self.factory.get("/user/get/"+str(self.user.id))
+        request = self.factory.get("/user/get/" + str(self.user.id))
         request.user = self.user
         response = get_user_by_id(request, self.user.id)
         self.assertEqual(response.status_code, 200)
@@ -95,10 +96,20 @@ class UserTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_getting_users_pitches_by_id(self):
-        request = self.factory.get("/user/pitch/"+str(self.user.id))
+        request = self.factory.get("/user/pitch/" + str(self.user.id))
         request.user = self.user
         response = get_users_pitches_by_id(request, self.user.id)
         self.assertEqual(response.status_code, 200)
+
+    def test_registering_user(self):
+        data = {"username": "Sas", "password": "/dev/null", "email": "a@a.a"}
+        response = self.client.post("/user/register/", data, content_type="application/json")
+        response_data = json.loads(str(response.content)[2:-1])
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_data["status"], "Ok")
+        user = User.objects.get(username="Sas")
+        self.assertNotEqual(user.password, data["password"])
+        self.assertIsInstance(user.profile, Profile)
 
 
 class PitchTestCase(TestCase):
@@ -123,7 +134,8 @@ class PitchTestCase(TestCase):
         investor_profile.tags.add(tag2)
         investor_profile.save()
 
-        pitch = Pitch(user=self.user, name="test", necessary_investitions=100, preview=SimpleUploadedFile("picture0.png", bytes("testdata", encoding='utf-8')))
+        pitch = Pitch(user=self.user, name="test", necessary_investitions=100,
+                      preview=SimpleUploadedFile("picture0.png", bytes("testdata", encoding='utf-8')))
         pitch.save()
         pitch.tags.add(tag)
         pitch.investors_interested.add(self.investor)

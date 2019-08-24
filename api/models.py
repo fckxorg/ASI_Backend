@@ -15,11 +15,11 @@ class Profile(models.Model):
     avatar = models.FileField(upload_to="static/users/avatars/")
     is_investor = models.BooleanField()
     tags = models.ManyToManyField(Tag)
-    birth_date = models.DateField()
-    education = models.CharField(max_length=600)
-    residence = models.CharField(max_length=400)
-    bio = models.CharField(max_length=1500)
-    profiles = models.CharField(max_length=200)  # social networks, messengers, etc.
+    birth_date = models.DateField(blank=True, null=True)
+    education = models.CharField(max_length=600, blank=True, null=True)
+    residence = models.CharField(max_length=400, blank=True, null=True)
+    bio = models.CharField(max_length=1500, blank=True, null=True)
+    profiles = models.CharField(max_length=200, blank=True, null=True)  # social networks, messengers, etc.
 
 
 class Pitch(models.Model):
@@ -30,7 +30,7 @@ class Pitch(models.Model):
     description = models.CharField(max_length=1500)
     video = models.FileField(upload_to="static/pitches/videos/")
     presentation = models.FileField(upload_to="static/pitches/presentations/")
-    necessary_investitions = models.IntegerField() # Estimated amount of money needed for project launch
+    necessary_investitions = models.IntegerField()  # Estimated amount of money needed for project launch
     investors_interested = models.ManyToManyField(User, related_name="investors_interested")
     investors_signed = models.ManyToManyField(User, related_name="investors_signed")
     smartid = models.CharField(max_length=400)

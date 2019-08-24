@@ -46,9 +46,7 @@ def get_tags(request):
 @csrf_exempt
 def auth_user(request):
     data = json.loads(request.body.decode("utf-8"))
-    username = data['username']
-    password = data['password']
-    user = authenticate(request, username=username, password=password)
+    user = authenticate(request, **data)
     if user is not None:
         login(request, user)
         response = JsonResponse({"status": "Ok", "message": "successful login"})
@@ -99,3 +97,19 @@ def get_pitch_by_id(request, id):
     pitch = Pitch.objects.get(id=id)
     data = json.loads(serialize('json', [pitch]))[0]
     return JsonResponse({**data["fields"], "id": data["pk"]})
+
+
+@csrf_exempt
+def register_user(request):
+    data = json.loads(request.body.decode("utf-8"))
+    user = User.objects.create_user(**data)
+    user.save()
+    profile = Profile(user=user, is_investor=False)
+    profile.save()
+    return JsonResponse({"status": "Ok"})
+
+
+@login_required
+def edit_user(request):
+    data = json.loads(request.body.decode("utf-8"))
+    user = request.user
