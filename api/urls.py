@@ -12,5 +12,6 @@ urlpatterns = [
     path("user/pitch/", views.get_users_pitches, name="get_users_pitches"),
     path("user/pitch/<int:id>", views.get_users_pitches_by_id, name="get_users_pitches_by_id"),
     path("pitch/get/<int:id>", views.get_pitch_by_id, name="get_pitch_by_id"),
-    path("user/register/", views.register_user, name="register_user")
+    path("user/register/", views.register_user, name="register_user"),
+    path("pitch/add/", views.add_pitch, name="add_pitch")
 ]

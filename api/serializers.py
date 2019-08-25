@@ -8,13 +8,6 @@ class UserSerializer:
         not_needed_keys = ["last_login", "password", "is_superuser", "is_staff", "is_active", "date_joined", "_password", "_state"]
         data = vars(user)
         additional_data = vars(user.profile)
-        try:
-            # string slice required to fix python byte-object to string cast
-            additional_data["avatar"] = user.profile.avatar.url
-        except FileNotFoundError:
-            additional_data["avatar"] = "None"
-        except ValueError:
-            additional_data["avatar"] = "None"
         keys = list(data.keys())
         for key in keys:
             if key in not_needed_keys:

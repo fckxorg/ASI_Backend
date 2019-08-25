@@ -5,14 +5,33 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.http.response import JsonResponse
 from .serializers import UserSerializer
-import base64
+import pickle
 import json
 
 from django.core.serializers import serialize
 
 
+@csrf_exempt
+def add_pitch(request):
+    user = User.objects.get(email="max.kokryashkin@gmail.com")
+    data = json.loads(request.body.decode("utf-8"))
+    pitch = Pitch(**data)
+    pitch.user = user
+    pitch.save()
+    pitch.tags.add(Tag.objects.get(name="design"))
+    pitch.save()
+    response = JsonResponse({"status": "Ok"})
+    response["Access-Control-Allow-Origin"] = "*"
+    response["Access-Control-Allow-Methods"] = "GET"
+    return response
+
+
 def get_user(request):
-    return JsonResponse(UserSerializer.serialize(request.user))
+    user = User.objects.get(email="max.kokryashkin@gmail.com")
+    response = JsonResponse(UserSerializer.serialize(user))
+    response["Access-Control-Allow-Origin"] = "*"
+    response["Access-Control-Allow-Methods"] = "GET"
+    return response
 
 
 def get_user_by_id(request, id):
@@ -71,12 +90,16 @@ def get_new_pitches(request):
 
 
 def get_users_pitches(request):
-    pitches = Pitch.objects.all().filter(user=request.user)
-    data = {"pitches": []}
+    user = User.objects.get(email="max.kokryashkin@gmail.com")
+    pitches = Pitch.objects.all().filter(user=user)
+    data = []
     pitch_objects = json.loads(serialize("json", pitches, fields=["name", "description", "preview", "tags"]))
     for pitch_object in pitch_objects:
-        data["pitches"].append({**pitch_object["fields"], "id": pitch_object["pk"]})
-    return JsonResponse(data)
+        data.append({**pitch_object["fields"], "id": pitch_object["pk"]})
+    response = JsonResponse(data, safe=False)
+    response["Access-Control-Allow-Origin"] = "*"
+    response["Access-Control-Allow-Methods"] = "GET"
+    return response
 
 
 def get_users_pitches_by_id(request, id):

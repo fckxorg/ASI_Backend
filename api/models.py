@@ -12,7 +12,7 @@ class Tag(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.FileField(upload_to="static/users/avatars/")
+    avatar = models.CharField(max_length=1500)
     is_investor = models.BooleanField()
     tags = models.ManyToManyField(Tag)
     birth_date = models.DateField(blank=True, null=True)
