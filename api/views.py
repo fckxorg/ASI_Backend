@@ -68,6 +68,9 @@ def auth_user(request):
         response = JsonResponse({"status": "Ok", "message": "successful login"})
     else:
         response = JsonResponse({"status": "Error", "message": "Credentials are incorrect or user does not exist"})
+    response["Access-Control-Allow-Origin"] = "http://192.168.43.119:8000/"
+    response["Access-Control-Allow-Methods"] = "GET"
+    response["Access-Control-Allow-Credentials"] = True
     return response
 
 
