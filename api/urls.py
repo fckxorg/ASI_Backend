@@ -2,15 +2,12 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path("user/get/", views.get_user, name="get_user"),
-    path("user/get/<int:id>", views.get_user_by_id, name="get_user_by_id"),
-    path("tag/add/", views.add_tag, name="add_tag"),
-    path("tag/get/", views.get_tags, name="get_tags"),
-    path("user/login/", views.auth_user, name="auth_user"),
+    path("user/<int:id>", views.get_user, name="get_user"),
+    path("tag/", views.process_tag, name="process_tag"),
+    path("login/", views.auth_user, name="auth_user"),
     path("pitch/get/new/", views.get_new_pitches, name="get_new_pitches"),
-    path("user/pitch/", views.get_users_pitches, name="get_users_pitches"),
-    path("user/pitch/<int:id>", views.get_users_pitches_by_id, name="get_users_pitches_by_id"),
-    path("pitch/get/<int:id>", views.get_pitch_by_id, name="get_pitch_by_id"),
-    path("user/register/", views.register_user, name="register_user"),
+    path("user/pitch/<int:id>", views.get_users_pitches, name="get_users_pitches"),
+    path("pitch/<int:id>", views.get_pitch, name="get_pitch"),
+    path("register/", views.register_user, name="register_user"),
     path("pitch/add/", views.add_pitch, name="add_pitch")
 ]

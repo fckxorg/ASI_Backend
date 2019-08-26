@@ -23,36 +23,31 @@ def add_pitch(request):
     return JsonResponse({"status": "Ok"})
 
 
-
-def get_user(request):
-    return JsonResponse(UserSerializer.serialize(request.user))
-
-
 @login_required
-def get_user_by_id(request, id):
-    user = User.objects.get(id=id)
+def get_user(request, id):
+    if id == 0:
+        user = request.user
+    else:
+        user = User.objects.get(id=id)
     return JsonResponse(UserSerializer.serialize(user))
 
-
 @login_required
-def add_tag(request):
-    if request.user.is_staff:
-        data = json.loads(request.body.decode("utf-8"))
-        tag = Tag(**data)
-        tag.save()
-        return JsonResponse({"status": "Ok", "message": "Tag added"})
-    return JsonResponse({"status": "Error", "message": "You have to be staff to add tags"})
-
-
-@login_required
-def get_tags(request):
-    query = Tag.objects.all()
-    data = {"tags": []}
-    for tag in query:
-        values = vars(tag)
-        del values["_state"]
-        data["tags"].append(values)
-    return JsonResponse(data)
+def process_tag(request):
+    if request.method == "POST":
+        if request.user.is_staff:
+            data = json.loads(request.body.decode("utf-8"))
+            tag = Tag(**data)
+            tag.save()
+            return JsonResponse({"status": "Ok", "message": "Tag added"})
+        return JsonResponse({"status": "Error", "message": "You have to be staff to add tags"})
+    if request.method == "GET":
+        query = Tag.objects.all()
+        data = {"tags": []}
+        for tag in query:
+            values = vars(tag)
+            del values["_state"]
+            data["tags"].append(values)
+        return JsonResponse(data)
 
 
 @csrf_exempt
@@ -84,18 +79,11 @@ def get_new_pitches(request):
 
 
 @login_required
-def get_users_pitches(request):
-    pitches = Pitch.objects.all().filter(user=request.user)
-    data = {"pitches": []}
-    pitch_objects = json.loads(serialize("json", pitches, fields=["name", "description", "preview", "tags"]))
-    for pitch_object in pitch_objects:
-        data["pitches"].append({**pitch_object["fields"], "id": pitch_object["pk"]})
-    return JsonResponse(data)
-
-
-@login_required
-def get_users_pitches_by_id(request, id):
-    user = User.objects.get(id=id)
+def get_users_pitches(request, id):
+    if id == 0:
+        user = request.user
+    else:
+        user = User.objects.get(id=id)
     pitches = Pitch.objects.all().filter(user=user)
     data = {"pitches": []}
     pitch_objects = json.loads(serialize("json", pitches, fields=["name", "description", "preview", "tags"]))
@@ -105,7 +93,7 @@ def get_users_pitches_by_id(request, id):
 
 
 @login_required
-def get_pitch_by_id(request, id):
+def get_pitch(request, id):
     pitch = Pitch.objects.get(id=id)
     data = json.loads(serialize('json', [pitch]))[0]
     return JsonResponse({**data["fields"], "id": data["pk"]})
@@ -119,9 +107,3 @@ def register_user(request):
     profile = Profile(user=user, is_investor=False)
     profile.save()
     return JsonResponse({"status": "Ok"})
-
-
-@login_required
-def edit_user(request):
-    data = json.loads(request.body.decode("utf-8"))
-    user = request.user

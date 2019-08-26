@@ -2,7 +2,7 @@ from django.test import TestCase, RequestFactory, Client
 from .models import Profile, Tag, Pitch
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
-from .views import get_user, get_user_by_id, add_tag, get_tags, get_new_pitches, get_users_pitches, get_users_pitches_by_id, get_pitch_by_id
+from .views import get_user, process_tag, get_new_pitches, get_users_pitches, get_pitch
 import json
 
 
@@ -15,33 +15,18 @@ class TagTestCase(TestCase):
         self.superuser = User.objects.create(username="Sas", email="sas@test.com", password="test", is_staff=True)
         self.superuser.save()
 
-    def test_adding_tag_as_staff(self):
+    def test_processing_tags(self):
         data = {"name": "tech"}
-        request = self.factory.post("/tag/add", data, content_type="application/json")
-        request.user = self.superuser
-        response = add_tag(request)
-        data = json.loads(str(response.content)[2:-1])
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["status"], "Ok")
-
-    def test_adding_tag_as_base_user(self):
-        data = {"name": "tech"}
-        request = self.factory.post("/tag/add", data, content_type="application/json")
-        request.user = self.user
-        response = add_tag(request)
-        data = json.loads(str(response.content)[2:-1])
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["status"], "Error")
-
-    def test_getting_tags(self):
-        tag = Tag(name="tech")
-        tag.save()
-        tag = Tag(name="art")
-        tag.save()
-        request = self.factory.get("/tag/get")
-        request.user = self.user
-        response = get_tags(request)
-        self.assertEqual(response.status_code, 200)
+        request = self.factory.post("/tag/", data, content_type="application/json")
+        for user in [self.user, self.superuser]:
+            request.user = user
+            response = process_tag(request)
+            data = json.loads(str(response.content)[2:-1])
+            self.assertEqual(response.status_code, 200)
+            if user.is_staff:
+                self.assertEqual(data["status"], "Ok")
+            else:
+                self.assertEqual(data["status"], "Error")
 
 
 class UserTestCase(TestCase):
@@ -70,17 +55,15 @@ class UserTestCase(TestCase):
         pitch.tags.add(tag)
         pitch.save()
 
-    def test_getting_user(self):
-        request = self.factory.get("/user/get")
-        request.user = self.user
-        response = get_user(request)
-        self.assertEqual(response.status_code, 200)
-
     def test_getting_user_by_id(self):
-        request = self.factory.get("/user/get/" + str(self.user.id))
-        request.user = self.user
-        response = get_user_by_id(request, self.user.id)
-        self.assertEqual(response.status_code, 200)
+        for case in [self.user.id, 0]:
+            request = self.factory.get("/user/" + str(case))
+            request.user = self.user
+            response = get_user(request, self.user.id)
+            self.assertEqual(response.status_code, 200)
+            data = json.loads(str(response.content)[2:-1])
+            self.assertEqual(data["id"], self.user.id)
+
 
     def test_logging_in(self):
         data = {"username": "Test", "password": "/dev/null"}
@@ -89,17 +72,12 @@ class UserTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data["status"], "Ok")
 
-    def test_getting_users_pitches(self):
-        request = self.factory.get("/user/pitch/")
-        request.user = self.user
-        response = get_users_pitches(request)
-        self.assertEqual(response.status_code, 200)
-
     def test_getting_users_pitches_by_id(self):
-        request = self.factory.get("/user/pitch/" + str(self.user.id))
-        request.user = self.user
-        response = get_users_pitches_by_id(request, self.user.id)
-        self.assertEqual(response.status_code, 200)
+        for case in [self.user.id, 0]:
+            request = self.factory.get("/user/pitch/" + str(case))
+            request.user = self.user
+            response = get_users_pitches(request, self.user.id)
+            self.assertEqual(response.status_code, 200)
 
     def test_registering_user(self):
         data = {"username": "Sas", "password": "/dev/null", "email": "a@a.a"}
@@ -171,9 +149,9 @@ class PitchTestCase(TestCase):
         data = json.loads(str(response.content)[2:-1])
         self.assertEqual(data["status"], "Error")
 
-    def test_getting_pitch_by_id(self):
-        request = self.factory.get("/pitch/get/1/")
+    def test_getting_pitch(self):
+        request = self.factory.get("/pitch/1/")
         request.user = self.user
-        response = get_pitch_by_id(request, 1)
+        response = get_pitch(request, 1)
         self.assertEqual(response.status_code, 200)
         data = json.loads(str(response.content)[2:-1])
