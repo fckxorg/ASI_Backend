@@ -37,8 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'api.apps.ApiConfig'
+    'api.apps.ApiConfig',
+    'directory'
 ]
+DIRECTORY_DIRECTORY = "static/"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
