@@ -55,7 +55,7 @@ class UserTestCase(TestCase):
         pitch.tags.add(tag)
         pitch.save()
 
-    def test_getting_user_by_id(self):
+    def test_getting_user(self):
         for case in [self.user.id, 0]:
             request = self.factory.get("/user/" + str(case))
             request.user = self.user
@@ -67,8 +67,9 @@ class UserTestCase(TestCase):
 
     def test_logging_in(self):
         data = {"username": "Test", "password": "/dev/null"}
-        response = self.client.post("/user/login/", data, content_type="application/json")
+        response = self.client.post("/login/", data, content_type="application/json")
         data = json.loads(str(response.content)[2:-1])
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data["status"], "Ok")
 
@@ -81,7 +82,7 @@ class UserTestCase(TestCase):
 
     def test_registering_user(self):
         data = {"username": "Sas", "password": "/dev/null", "email": "a@a.a"}
-        response = self.client.post("/user/register/", data, content_type="application/json")
+        response = self.client.post("/register/", data, content_type="application/json")
         response_data = json.loads(str(response.content)[2:-1])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_data["status"], "Ok")

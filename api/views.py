@@ -4,7 +4,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.http.response import JsonResponse
-from .serializers import UserSerializer
 import pickle
 import json
 
@@ -29,7 +28,13 @@ def get_user(request, id):
         user = request.user
     else:
         user = User.objects.get(id=id)
-    return JsonResponse(UserSerializer.serialize(user))
+    profile = user.profile
+    data = json.loads(serialize("json", [user], fields=["username", "first_name", "last_name", "email"]))[0]
+    profile_data = json.loads(serialize("json", [profile]))[0]["fields"]
+    result = {**data["fields"], "id": data["pk"], **profile_data}
+    del result["user"]
+    return JsonResponse(result)
+
 
 @login_required
 def process_tag(request):
@@ -70,7 +75,7 @@ def get_new_pitches(request):
             for element in list(tag.pitch_set.all()):
                 pitch_objects.append(element)
         pitch_objects = list(set(pitch_objects))
-        pitch_objects = json.loads(serialize("json", pitch_objects, fields = ["name", "description", "preview", "tags"]))
+        pitch_objects = json.loads(serialize("json", pitch_objects, fields=["name", "description", "preview", "tags"]))
         data = {"pitches": []}
         for pitch_object in pitch_objects:
             data["pitches"].append({**pitch_object["fields"], "id": pitch_object["pk"]})
