@@ -64,7 +64,6 @@ class UserTestCase(TestCase):
             data = json.loads(str(response.content)[2:-1])
             self.assertEqual(data["id"], self.user.id)
 
-
     def test_logging_in(self):
         data = {"username": "Test", "password": "/dev/null"}
         response = self.client.post("/login/", data, content_type="application/json")
