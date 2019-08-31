@@ -7,7 +7,8 @@ from django.contrib.auth.models import User
 from django.core.serializers import serialize
 from django.http.response import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from api.shortcuts import decode_json, serialize_pitches, generate_response
+from api.shortcuts import decode_json, serialize_pitches
+from api.status_codes import StatusCode
 from api.models import Pitch, Profile, Tag
 
 
@@ -17,11 +18,11 @@ def add_pitch(request):
     user = User.objects.get(email='max.kokryashkin@gmail.com')
     pitch_data = decode_json(request)
     pitch = Pitch(**pitch_data)
-    pitch.user = user
+    pitch.u
     pitch.save()
     pitch.tags.add(Tag.objects.get(name='design'))
     pitch.save()
-    return JsonResponse(generate_response('0'))
+    return JsonResponse(StatusCode.SUCCESS)
 
 
 @login_required
@@ -73,8 +74,8 @@ def auth_user(request):
     user = authenticate(request, **auth_data)
     if user is not None:
         login(request, user)
-        return JsonResponse(generate_response('0'))
-    return JsonResponse(generate_response('11'))
+        return JsonResponse(StatusCode.SUCCESS)
+    return JsonResponse(StatusCode.ERR_AUTH)
 
 
 @login_required
@@ -91,7 +92,7 @@ def get_new_pitches(request):
                 pitches.append(element)
         pitches = list(set(pitches))
         return JsonResponse(serialize_pitches(pitches))
-    return JsonResponse(generate_response('10'))
+    return JsonResponse(StatusCode.ERR_NOT_ALLOWED)
 
 
 @login_required
@@ -126,4 +127,4 @@ def register_user(request):
     user.save()
     profile = Profile(user=user, is_investor=False)
     profile.save()
-    return JsonResponse(generate_response('0'))
+    return JsonResponse(StatusCode.SUCCESS)
