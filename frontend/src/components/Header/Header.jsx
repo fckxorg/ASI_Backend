@@ -39,7 +39,7 @@ class Header extends Component {
         );
     }
     componentDidMount() {
-        fetch('/user/get/')
+        fetch('api/user/get/')
             .then(response => response.json())
             .then(data => this.setState({user:data}))
     }

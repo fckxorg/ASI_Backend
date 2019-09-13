@@ -16,7 +16,7 @@ class AddPitchInfo extends Component {
                 video:video,
                 necessary_investitions:necessary_investitions
             };
-            fetch('/pitch/add/',{
+            fetch('api/pitch/add/',{
                 method:'POST',
                 mode: 'cors',
                 body: JSON.stringify(data)

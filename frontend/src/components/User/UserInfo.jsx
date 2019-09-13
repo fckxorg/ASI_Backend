@@ -65,10 +65,10 @@ class UserInfo extends Component {
     //         .then(data => this.setState({posts: data}))
     // }
     componentDidMount() {
-        fetch('/user/get/')
+        fetch('api/user/get/')
             .then(response => response.json())
             .then(data => this.setState({user:data}));
-        fetch('/user/pitch/')
+        fetch('api/user/pitch/')
             .then(response => response.json())
             .then(data => this.setState({posts:data}));
         }

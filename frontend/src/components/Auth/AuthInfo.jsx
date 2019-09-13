@@ -16,7 +16,7 @@ export default class Auth extends Component {
         //     login: this.state.login,
         //     password: this.state.pass,
         // };
-        // fetch('/user/login/', {
+        // fetch('api/user/login/', {
         //     withCredentials: true,
         //     mode: 'cors',
         //     method: 'post',

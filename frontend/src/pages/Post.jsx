@@ -18,10 +18,10 @@ class Post extends Component {// Это страница которая отоб
         );
     }
     componentDidMount() {
-        fetch(`/pitch/get/${this.props.params.postId}`)
+        fetch(`api/pitch/get/${this.props.params.postId}`)
             .then(response => response.json())
             .then(data => this.setState({post: data}))
-        fetch('/pitch/get/new/')
+        fetch('api/pitch/get/new/')
             .then(response => response.json())
             .then(data => this.setState({user: data}))
     }
