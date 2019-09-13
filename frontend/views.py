@@ -4,4 +4,4 @@ from django.shortcuts import render
 
 
 def render_page(request):
-    return render(request)
+    return render(request, 'frontend/index.html')
