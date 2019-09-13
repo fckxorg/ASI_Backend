@@ -16,7 +16,7 @@ export default class Auth extends Component {
         //     login: this.state.login,
         //     password: this.state.pass,
         // };
-        // fetch('http://127.0.0.1:8000/user/login/', {
+        // fetch('/user/login/', {
         //     withCredentials: true,
         //     mode: 'cors',
         //     method: 'post',

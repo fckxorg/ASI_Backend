@@ -65,10 +65,10 @@ class UserInfo extends Component {
     //         .then(data => this.setState({posts: data}))
     // }
     componentDidMount() {
-        fetch('http://127.0.0.1:8000/user/get/')
+        fetch('/user/get/')
             .then(response => response.json())
             .then(data => this.setState({user:data}));
-        fetch('http://127.0.0.1:8000/user/pitch/')
+        fetch('/user/pitch/')
             .then(response => response.json())
             .then(data => this.setState({posts:data}));
         }

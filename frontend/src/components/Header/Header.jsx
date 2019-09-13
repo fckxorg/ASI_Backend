@@ -39,7 +39,7 @@ class Header extends Component {
         );
     }
     componentDidMount() {
-        fetch('http://127.0.0.1:8000/user/get/')
+        fetch('/user/get/')
             .then(response => response.json())
             .then(data => this.setState({user:data}))
     }
