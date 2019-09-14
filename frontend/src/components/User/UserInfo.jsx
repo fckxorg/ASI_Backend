@@ -7,7 +7,7 @@ class UserInfo extends Component {
         super(props);
         this.state = {
             user: [],
-            posts:[]
+            posts:[],
         }
     }
     render() {
@@ -26,6 +26,7 @@ class UserInfo extends Component {
                   d="M0 4v8c0 .55.45 1 1 1h12c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1H1c-.55 0-1 .45-1 1zm13 0L7 9 1 4h12zM1 5.5l4 3-4 3v-6zM2 12l3.5-3L7 10.5 8.5 9l3.5 3H2zm11-.5l-4-3 4-3v6z"></path>
         </svg>;
 
+        console.log(this.state.posts, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         const posts = this.state.posts.map((post, index) => {
             return <PostMinInfo key={index} {...post}/>}
         );
@@ -65,10 +66,10 @@ class UserInfo extends Component {
     //         .then(data => this.setState({posts: data}))
     // }
     componentDidMount() {
-        fetch('api/user/0')
+        fetch('api/user/0/')
             .then(response => response.json())
             .then(data => this.setState({user:data}));
-        fetch('api/user/pitch/0')
+        fetch('api/user/pitch/0/')
             .then(response => response.json())
             .then(data => this.setState({posts:data}));
         }
