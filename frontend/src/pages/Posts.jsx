@@ -7,8 +7,7 @@ class Posts extends Component {// Это страница в которой бу
         console.log(this.props.children);
         return (
             <>
-                {/*{(!this.props.children) ? <PostsList/> : (this.props.children)}*/}
-                <PostsList/>
+                {(!this.props.children) ? <PostsList/> : (this.props.children)}
             </>
         );
     }
