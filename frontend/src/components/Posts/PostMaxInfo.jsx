@@ -2,14 +2,16 @@ import React, {Component} from 'react';
 
 class PostMaxInfo extends Component {
     render() {
-        const tags = this.props.tags.map(tag => <p className="teg">{tag}</p>)
+        const tags = this.props.tags.map(tag => <p className="teg">{tag}</p>);
+        const video = '../cdn' + this.props.video.substr(6);
+        const preview = '../cdn' + this.props.preview.substr(6);
         return (
             <div className="post-info">
                 <div className="card-max">
 
                     <div className="video">
-                        <video controls="controls" poster={this.props.preview}>
-                            <source src={this.props.video}/>
+                        <video controls="controls" poster={preview}>
+                            <source src={video}/>
                         </video>
                         <div className="card-max-description-tegs-under-video">
                             {tags}

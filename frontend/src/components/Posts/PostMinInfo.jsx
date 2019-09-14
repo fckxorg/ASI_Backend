@@ -10,10 +10,11 @@ class PostMinInfo extends Component {//Рисуется карточка пос�
     }
     render() {
         const tags = this.props.tags.map((tag, index) => <p className="teg" key={index}>{tag}</p>);
+        const preview = 'cdn' + this.props.preview.substr(6);
         return (
             <div className="card-min">
                     <Link to={`/posts/${this.props.id}`}>
-                        <img className='card-min-img' src={this.props.preview} alt=""/>
+                        <img className='card-min-img' src={preview} alt=""/>
                     </Link>
                 <div className="card-min-description">
                     <h3>{this.props.name}</h3>

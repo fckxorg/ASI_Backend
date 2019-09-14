@@ -7,11 +7,11 @@ class PostsList extends Component {// Блок, в котором будут р�
     constructor(props){
         super(props);
          this.state = {
-             posts: []
+             posts: [],
          }
     }
     render() {
-        if(!this.state.posts.length) return null
+        if(!this.state.posts.length) return null;
         const posts = this.state.posts.map((post, index) => {
            return <PostMinInfo key={index} {...post}/>}
         );
