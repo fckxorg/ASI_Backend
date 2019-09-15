@@ -47,7 +47,7 @@ class PostsList extends Component {// Блок, в котором будут р�
     componentDidMount() {
         fetch('../api/pitch/get/new')
             .then(response => response.json())
-            .then(data => this.setState({posts: data}))
+            .then(data => this.setState({posts: Object.values(data)[0]}))
 
     }
 }
